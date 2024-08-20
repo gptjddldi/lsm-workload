@@ -1,4 +1,4 @@
-module lsm-workload
+module github.com/gptjddldi/lsm-workload
 
 go 1.22
 
