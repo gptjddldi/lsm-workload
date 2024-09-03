@@ -38,7 +38,7 @@ func (r *RandomString) RandomKey() string {
 
 	switch r.Charset {
 	case CharEnglishAlphabetNumber:
-		length += rand.Intn(6)
+		length += rand.Intn(12)
 	case CharBase62:
 		length += rand.Intn(100)
 	case CharNumber:
@@ -49,7 +49,7 @@ func (r *RandomString) RandomKey() string {
 }
 
 func (r *RandomString) RandomValue() string {
-	length := rand.Intn(30) + 1
+	length := rand.Intn(40) + 1
 	return r.generateRandomStringWithLength(CharBase62, length)
 }
 
@@ -62,5 +62,11 @@ func (r *RandomString) generateRandomStringWithLength(charset string, length int
 }
 
 func (r *RandomString) generateRandomInt() string {
-	return strconv.FormatInt(rand.Int63(), 10)
+	num := rand.Int63n(1e12) // 0부터 999,999,999,999까지의 숫자 생성
+	numStr := strconv.FormatInt(num, 10)
+
+	for len(numStr) < 12 {
+		numStr += "0"
+	}
+	return numStr
 }

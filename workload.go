@@ -24,11 +24,14 @@ const (
 	PUT
 	DELETE
 
-	MaxBufferSize = 10 >> 20
+	MaxBufferSize = 1000 << 20
 
 	MaxKeyPoolCount = 10000000
 )
 
+// NewLsmWorkload - Create a new LsmWorkload
+// mode: "number" or "english"
+// string mode generates random strings that are 6 characters long
 func NewLsmWorkload(mode string, gets, puts, deletes int, hitRatio float32) *LsmWorkload {
 	return &LsmWorkload{
 		gets:     gets,
@@ -49,7 +52,7 @@ func (lw *LsmWorkload) Generate() error {
 	}
 	defer file.Close()
 
-	writer := bufio.NewWriter(file)
+	writer := bufio.NewWriterSize(file, MaxBufferSize*10)
 	defer writer.Flush()
 
 	getCount, putCount, deleteCount := 0, 0, 0
@@ -70,7 +73,12 @@ func (lw *LsmWorkload) Generate() error {
 		var line string
 
 		if operation == GET && getCount < lw.gets {
-			key := lw.keyPool[rand.Intn(len(lw.keyPool))]
+			var key string
+			if rand.Float32() < lw.hitRatio && len(lw.keyPool) > 0 {
+				key = lw.keyPool[rand.Intn(len(lw.keyPool))]
+			} else {
+				key = lw.rs.RandomKey()
+			}
 			line = fmt.Sprintf("g %s\n", key)
 
 			getCount++
